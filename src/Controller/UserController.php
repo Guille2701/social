@@ -33,7 +33,7 @@ final class UserController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_index');
         }
 
         return $this->render('user/new.html.twig', [
@@ -42,24 +42,33 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
-    public function show(User $user): Response
+    #[Route('/{username}', name: 'app_user_show', methods: ['GET'])]
+    public function show(UserRepository $userRepository, string $username): Response
     {
-        return $this->render('user/show.html.twig', [
-            'user' => $user,
-        ]);
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        return $this->render('user/show.html.twig', ['user' => $user]);
     }
 
-    #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{username}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, UserRepository $userRepository, string $username, EntityManagerInterface $entityManager): Response
     {
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('User not found');
+        }
+
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_index');
         }
 
         return $this->render('user/edit.html.twig', [
@@ -68,14 +77,48 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{username}', name: 'app_user_delete', methods: ['POST'])]
+    public function delete(Request $request, UserRepository $userRepository, string $username, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($user);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_user_index');
     }
+
+    #[Route('/{username}/follower', name: 'app_user_follower', methods: ['GET'])]
+public function followers(UserRepository $userRepository, string $username): Response
+{
+    $user = $userRepository->findOneBy(['username' => $username]);
+
+    if (!$user) {
+        throw $this->createNotFoundException('User not found');
+    }
+
+    return $this->render('user/follower.html.twig', [
+        'user' => $user,
+        'followers' => $user->getFollowers(), // 👈 ESTA LÍNEA ES LA CLAVE
+    ]);
+}
+
+
+    // #[Route('/{username}/following', name: 'app_user_following', methods: ['GET'])]
+    // public function following(UserRepository $userRepository, string $username): Response
+    // {
+    //     $user = $userRepository->findOneBy(['username' => $username]);
+
+    //     if (!$user) {
+    //         throw $this->createNotFoundException('User not found');
+    //     }
+
+    //     return $this->render('user/following.html.twig', ['user' => $user]);
+    // }
 }
