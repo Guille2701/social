@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profile of {{ user.username }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ user.username }}'s Profile</h1>
+
+        {# Don't show the button if users are viewing their own profile #}
+        {% if app.user and app.user.id != user.id %}
+            {#
+                TODO: Add more advanced logic here to handle different states:
+                - Already friends
+                - Invitation pending
+                - Invitation received
+            #}
+            <a href="{{ path('friend_send', {id: user.id}) }}" class="btn btn-primary">
+                Send Friend Invitation
+            </a>
+        {% endif %}
+
+        {# You can display the user's posts or other information here later #}
+    </div>
+{% endblock %}

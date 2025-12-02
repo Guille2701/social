@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invitaciones Pendientes{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">Invitaciones de Amistad Pendientes</h1>
+
+    {% if invitations is not empty %}
+        <div class="list-group mb-5">
+            {% for invitation in invitations %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        Invitación de: <a href="{{ path('profile_view', {username: invitation.sender.username}) }}">
+                            <strong>{{ invitation.sender.username }}</strong>
+                        </a>
+                    </span>
+                    <div>
+                        <a href="{{ path('friend_accept', {id: invitation.id}) }}" class="btn btn-success btn-sm me-2">Aceptar</a>
+                        <a href="{{ path('friend_reject', {id: invitation.id}) }}" class="btn btn-danger btn-sm">Rechazar</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mb-5" role="alert">
+            No tienes invitaciones de amistad pendientes.
+        </div>
+    {% endif %}
+
+    <h2 class="mb-3">Sugerencias de Amigos</h2>
+    {% if suggestions is not empty %}
+        <div class="list-group">
+            {% for suggestion in suggestions %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{{ path('profile_view', {username: suggestion.username}) }}">
+                        {{ suggestion.username }}
+                    </a>
+                    <a href="{{ path('friend_send', {id: suggestion.id}) }}" class="btn btn-primary btn-sm">Enviar Invitación</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-secondary" role="alert">
+            No hay sugerencias de amigos en este momento.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

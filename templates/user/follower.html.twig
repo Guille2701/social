@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>Seguidores de {{ user.username }}</h1>
+
+{% if followers is empty %}
+    <p>No tiene seguidores aún.</p>
+{% else %}
+    <ul>
+        {% for follower in followers %}
+            <li>
+                {{ follower.username }}
+                <a href="{{ path('app_chat_with_user', { username: follower.username }) }}">
+                    Chatear
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<a href="{{ path('app_user_show', { username: user.username }) }}">Volver</a>
+{% endblock %}

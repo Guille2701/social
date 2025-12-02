@@ -28,7 +28,11 @@
 
     <a href="{{ path('app_post_index') }}">back to list</a>
 
+    {{% if app.user and app.user.id == post.author.id %}}
     <a href="{{ path('app_post_edit', {'id': post.id}) }}">edit</a>
-
+    {{% endif %}}
+    
+    {{% if app.user.isAdmin() %}}
     {{ include('post/_delete_form.html.twig') }}
+    {{% endif %}}
 {% endblock %}

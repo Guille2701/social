@@ -27,17 +27,23 @@ class Post
     #[ORM\ManyToOne(inversedBy: 'posts')]
     private ?User $author = null;
 
-    /**
-     * @var Collection<int, User>
-     */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'likes')]
     private Collection $likes;
+
+    /**
+     * Usuarios que han compartido este post
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'compartidos')]
+    private Collection $compartidos;
 
     public function __construct()
     {
         $this->likes = new ArrayCollection();
+        $this->compartidos = new ArrayCollection();
     }
 
+    // --- GETTERS / SETTERS ---
     public function getId(): ?int
     {
         return $this->id;
@@ -51,7 +57,6 @@ class Post
     public function setText(?string $text): static
     {
         $this->text = $text;
-
         return $this;
     }
 
@@ -63,7 +68,6 @@ class Post
     public function setPostdate(\DateTime $postdate): static
     {
         $this->postdate = $postdate;
-
         return $this;
     }
 
@@ -75,7 +79,6 @@ class Post
     public function setImg(?string $img): static
     {
         $this->img = $img;
-
         return $this;
     }
 
@@ -87,13 +90,9 @@ class Post
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
     public function getLikes(): Collection
     {
         return $this->likes;
@@ -104,14 +103,34 @@ class Post
         if (!$this->likes->contains($like)) {
             $this->likes->add($like);
         }
-
         return $this;
     }
 
     public function removeLike(User $like): static
     {
         $this->likes->removeElement($like);
+        return $this;
+    }
 
+    public function getCompartidos(): Collection
+    {
+        return $this->compartidos;
+    }
+
+    public function addCompartido(User $user): static
+    {
+        if (!$this->compartidos->contains($user)) {
+            $this->compartidos->add($user);
+            $user->addCompartido($this);
+        }
+        return $this;
+    }
+
+    public function removeCompartido(User $user): static
+    {
+        if ($this->compartidos->removeElement($user)) {
+            $user->removeCompartido($this);
+        }
         return $this;
     }
 }

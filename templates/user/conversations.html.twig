@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>Conversaciones</h1>
+
+{% if conversations is empty %}
+    <p>No tienes conversaciones aún.</p>
+{% else %}
+    <ul>
+        {% for conversation in conversations %}
+            {% set otherUser = conversation.user1 == user ? conversation.user2 : conversation.user1 %}
+
+            {% set unread = 0 %}
+            {% for m in conversation.messages %}
+                {% if m.sender != user and not m.isRead %}
+                    {% set unread = unread + 1 %}
+                {% endif %}
+            {% endfor %}
+
+            <li>
+                Chat con {{ otherUser.username }}
+                {% if unread > 0 %}
+                    <strong style="color: red;">({{ unread }} no leídos)</strong>
+                {% endif %}
+                <a href="{{ path('app_chat_with_user', { username: otherUser.username }) }}">
+                    Abrir Chat 💬
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}

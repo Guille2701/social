@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Story{% endblock %}
+
+{% block body %}
+    <h1>{{ story.creationDate ? story.creationDate|date('Y-m-d H:i:s') : '' }}</h1>
+
+    <p>{{ story.author.username }}</p>
+
+    <a href="{{ path('app_story_index') }}" style="text-decoration:none; color:inherit;">
+    <p style="font-size: 75px; margin: 20px;">⬅</p>
+</a>
+
+    {% if story.likes.contains(app.user) %}
+        <a href="{{ path('app_story_unlike', {'id': story.id}) }}" class="action-btn">
+            💗 <span class="action-count">{{ story.likes|length }}</span>
+        </a>
+    {% else %}
+        <a href="{{ path('app_story_like', {'id': story.id}) }}" class="action-btn">
+            🖤 <span class="action-count">{{ story.likes|length }}</span>
+        </a>
+    {% endif %}
+
+
+<img src="{{ asset('img/' ~ story.img) }}"
+     alt="story"
+     style="
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        display: block;
+     ">
+
+
+
+
+
+{% endblock %}

@@ -95,30 +95,6 @@ final class PostController extends AbstractController
         return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/follow/{id}', name: 'app_post_follow', methods: ['GET'])]
-    public function follow(Post $post, EntityManagerInterface $entityManager): Response
-    {
-        if($this->getUser()->getId() !== $post->getAuthor()->getId()) {
-            $post->getAuthor()->addFollower($this->getUser());
-            $entityManager->persist($post);
-            $entityManager->flush();
-        }
-        
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
-    }
-
-    #[Route('/unfollow/{id}', name: 'app_post_unfollow', methods: ['GET'])]
-    public function unfollow(Post $post, EntityManagerInterface $entityManager): Response
-    {
-        if($this->getUser()->getId() !== $post->getAuthor()->getId()) {
-            $post->getAuthor()->removeFollower($this->getUser());
-            $entityManager->persist($post);
-            $entityManager->flush();    
-        }
-        
-        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
-    }
-
 
     #[Route('/{id}', name: 'app_post_show', methods: ['GET'])]
     public function show(Post $post): Response
@@ -129,6 +105,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function edit(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(PostType::class, $post);
@@ -147,6 +124,7 @@ final class PostController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_post_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$post->getId(), $request->getPayload()->getString('_token'))) {
@@ -154,6 +132,26 @@ final class PostController extends AbstractController
             $entityManager->flush();
         }
 
+        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/user/{id}', name: 'app_post_share', methods: ['GET'])]
+    public function share(Post $post, EntityManagerInterface $entityManager): Response
+    {
+
+
+        $this->getUser()->addCompartido($post);
+        $entityManager->persist($post);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/user/unshare/{id}', name: 'app_post_unshare', methods: ['GET'])]
+    public function unshare(Post $post, EntityManagerInterface $entityManager): Response
+    {
+        $this->getUser()->removeCompartido($post);
+        $entityManager->persist($post);
+        $entityManager->flush();
         return $this->redirectToRoute('app_post_index', [], Response::HTTP_SEE_OTHER);
     }
 }

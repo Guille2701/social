@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Story disponibles{% endblock %}
+
+{% block body %}
+    <h1>Storys disponibles</h1>
+
+    
+{% for story in stories %}
+    {% set creationDate = story.getCreationDate() %}
+    {% set creationDatePlus24 = creationDate|date('Y-m-d H:i:s')|date_modify('+24 seconds
+    ') %}
+
+    {% if creationDatePlus24 > "now"|date('Y-m-d H:i:s') %}
+        <a href="{{ path('app_story_show', {'id': story.id}) }}">
+            <img src="{{ asset('img/' ~ story.img) }}"
+                 alt="story"
+                 style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 4px solid black;">
+        </a>
+    {% endif %}
+{% else %}
+    <p>No records found</p>
+{% endfor %}
+
+
+
+{% endblock %}

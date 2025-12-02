@@ -68,6 +68,18 @@ final class UserController extends AbstractController
         ]);
     }
 
+    /*
+    #[Route('/{id}', name: 'app_user_makeAdmin', methods: ['GET'])]
+    public function makeAdmin(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($user);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+    }*/
+
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
@@ -78,4 +90,51 @@ final class UserController extends AbstractController
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    #[Route('/{username}/conversations', name: 'app_user_conversations', methods: ['GET'])]
+    public function conversations(UserRepository $userRepository, string $username): Response
+    {
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        return $this->render('user/conversations.html.twig', [
+            'user' => $user,
+            'conversations' => $user->getConversations(), // 👈 ESTA LÍNEA ES LA CLAVE
+        ]);
+    }
+
+    #[Route('/follow/{id}', name: 'app_user_follow', methods: ['GET'])]
+    public function follow(User $userToFollow, EntityManagerInterface $em): Response
+    {
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($currentUser === $userToFollow) {
+            $this->addFlash('error', 'No puedes seguirte a ti mismo.');
+            return $this->redirectToRoute('app_profile', ['id' => $userToFollow->getId()]);
+        }
+
+        // Comprobar si ya sigue al usuario
+        $alreadyFollowing = $userToFollow->getFollowers()->contains($currentUser);
+
+        if ($alreadyFollowing) {
+            // Unfollow: lo removemos de followers del usuario objetivo
+            $userToFollow->removeFollower($currentUser);
+        } else {
+            // Follow: lo agregamos a followers del usuario objetivo
+            $userToFollow->addFollower($currentUser);
+        }
+
+        $em->flush();
+
+        return $this->redirectToRoute('app_post_index', ['id' => $userToFollow->getId()]);
+    }
+
+
 }

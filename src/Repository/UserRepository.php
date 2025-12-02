@@ -33,6 +33,38 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+        public function findSuggestions(User $user, int $limit = 5): array
+    {
+        $em = $this->getEntityManager();
+
+        // Paso 1: Obtener todos los IDs a excluir en un solo array
+        $followingIds = $em->createQuery('SELECT f.id FROM App\Entity\User u JOIN u.following f WHERE u.id = :user_id')
+            ->setParameter('user_id', $user->getId())
+            ->getSingleColumnResult();
+
+        $invitationIds = $em->createQuery("
+            SELECT CASE WHEN fi.sender = :user_id THEN IDENTITY(fi.receiver) ELSE IDENTITY(fi.sender) END
+            FROM App\Entity\FriendInvitation fi
+            WHERE (fi.sender = :user_id OR fi.receiver = :user_id) AND fi.status != 'rejected'
+        ")->setParameter('user_id', $user->getId())->getSingleColumnResult();
+
+        // Unir todos los IDs a excluir, incluyendo el del propio usuario
+        $excludeIds = array_merge($followingIds, $invitationIds, [$user->getId()]);
+
+        $qb = $this->createQueryBuilder('u');
+        if (!empty($excludeIds)) {
+            $qb->where($qb->expr()->notIn('u.id', ':excludeIds'))
+               ->setParameter('excludeIds', $excludeIds);
+        }
+        $qb
+            ->setMaxResults($limit)
+            ->orderBy('u.id', 'DESC'); // Ordenar para obtener usuarios más nuevos
+
+        return $qb->getQuery()->getResult();
+    }
+
+
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

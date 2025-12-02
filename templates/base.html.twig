@@ -15,7 +15,17 @@
         {% if is_granted('ROLE_USER') %}
             <p>Logged in as {{ app.user.username }}</p>
             <a href="{{ path('app_logout') }}">Logout</a>
-            <a href="{{ path('app_user_index') }}">Perfil</a>
+            <a href='{{path('app_user_show', {'id': app.user.id})}}'>Perfil</a>
+            <a href="{{ path('app_story_index') }}">Stories</a>
+            <a href="{{ path('app_post_index') }}">Posts</a>
+            <a href="{{ path('friend_index') }}">Amigos</a>
+            <a href="{{ path('friend_pending') }}">Invitaciones</a>
+
+            
+            
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
         {% else %}
             <a href="{{ path('app_login') }}">Login</a>
         {% endif %}

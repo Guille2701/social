@@ -1,24 +1,542 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}User{% endblock %}
+{% block title %}{{ user.username }} - Perfil{% endblock %}
+
+{% block stylesheets %}
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #fafafa;
+        padding-top: 60px;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-bottom: 1px solid #dbdbdb;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+    }
+
+    .navbar-brand {
+        font-size: 20px;
+        font-weight: 600;
+        color: #262626;
+        text-decoration: none;
+    }
+
+    .navbar-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .navbar-actions a {
+        color: #262626;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .container {
+        max-width: 935px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+
+    .profile-header {
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+        padding: 30px;
+        margin-bottom: 28px;
+        display: flex;
+        gap: 80px;
+        align-items: center;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 64px;
+        font-weight: 300;
+        flex-shrink: 0;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-username {
+        font-size: 28px;
+        font-weight: 300;
+        color: #262626;
+        margin-bottom: 20px;
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 40px;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        font-size: 16px;
+        color: #262626;
+    }
+
+    .stat-number {
+        font-weight: 600;
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 7px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: #0095f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1877f2;
+    }
+
+    .btn-secondary {
+        background: #efefef;
+        color: #262626;
+    }
+
+    .btn-secondary:hover {
+        background: #dbdbdb;
+    }
+
+    .btn-danger {
+        background: #ed4956;
+        color: white;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: center;
+        border-top: 1px solid #dbdbdb;
+        margin-bottom: 28px;
+        background: white;
+        padding: 15px 0;
+    }
+
+    .section-label {
+        margin: 0 30px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #262626;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .posts-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        margin-bottom: 40px;
+    }
+
+    .post-item {
+        position: relative;
+        aspect-ratio: 1;
+        overflow: hidden;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .post-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .post-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        color: white;
+        font-weight: 600;
+    }
+
+    .post-item:hover .post-overlay {
+        opacity: 1;
+    }
+
+    .post-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+    }
+
+    .post-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .post-card {
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+    }
+
+    .post-header {
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar-small {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .username {
+        font-weight: 600;
+        color: #262626;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .username:hover {
+        text-decoration: underline;
+    }
+
+    .post-date {
+        font-size: 12px;
+        color: #8e8e8e;
+        margin-top: 2px;
+    }
+
+    .post-image {
+        width: 100%;
+        display: block;
+        border-top: 1px solid #efefef;
+        border-bottom: 1px solid #efefef;
+    }
+
+    .post-actions {
+        padding: 8px 16px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .action-btn {
+        text-decoration: none;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #262626;
+        transition: transform 0.1s;
+    }
+
+    .action-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .action-count {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .post-caption {
+        padding: 0 16px 16px;
+    }
+
+    .caption-text {
+        font-size: 14px;
+        color: #262626;
+        line-height: 18px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #8e8e8e;
+        background: white;
+        border: 1px solid #dbdbdb;
+        border-radius: 8px;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #262626;
+        margin-bottom: 20px;
+        margin-top: 40px;
+        padding-left: 4px;
+    }
+
+    ul {
+        list-style: none;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-    <h1>User</h1>
+    <nav class="navbar">
+        <a href="{{ path('app_post_index') }}" class="navbar-brand">← Mi red social</a>
+        <div class="navbar-actions">
+            {% if app.user and app.user.id == user.id %}
+                <a href="{{ path('app_user_edit', {'id': user.id}) }}">Editar perfil</a>
+            {% endif %}
+        </div>
+    </nav>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Username</th>
-                <td>{{ user.username }}</td>
-            </tr>
-            
-           
-        </tbody>
-    </table>
+    <div class="container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-username">{{ user.username }}</h1>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ user.posts | length }}</span> publicaciones
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ user.followers | length }}</span> seguidores
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ user.compartidos is defined ? user.compartidos | length : 0 }}</span> compartidos
+                    </div>
+                </div>
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
+                <div class="profile-actions">
+                    {% if app.user and app.user.id == user.id %}
+                        <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-secondary">Editar perfil</a>
+                        <a href="{{ path('app_user_conversations', {'username': user.username}) }}" class="btn btn-secondary">Mensajes</a>
+                    {% endif %}
+                    {% if app.user.isAdmin() %}
+                        {{ include('user/_delete_form.html.twig') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
+        <div class="section-header">
+            <div class="section-label">📱 Publicaciones y Compartidos</div>
+        </div>
 
-    {{ include('user/_delete_form.html.twig') }}
+        <div id="publicaciones-section">
+            {% if user.posts is not empty %}
+                <div class="posts-grid">
+                    {% for post in user.posts %}
+                        <div class="post-item">
+                            {% if post.img %}
+                                <img src="{{ asset('img/' ~ post.img) }}" alt="{{ post.text }}">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                                    📝
+                                </div>
+                            {% endif %}
+                            <div class="post-overlay">
+                                <div class="post-stat">
+                                    💗 {{ post.likes|length }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <h2 class="section-title">Todas las publicaciones</h2>
+                <div class="post-list">
+                    {% for post in user.posts %}
+                        <article class="post-card">
+                            <div class="post-header">
+                                <div class="user-info">
+                                    <div class="user-avatar-small">
+                                        {{ post.author.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <a href='{{path('app_user_show', {'id': post.author.id})}}' class="username">
+                                            {{ post.author.username }}
+                                        </a>
+                                        <div class="post-date">
+                                            {{ post.postdate ? post.postdate|date('d/m/Y H:i') : '' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if post.img %}
+                                <img src="{{ asset('img/' ~ post.img) }}" class="post-image" alt="{{ post.text }}">
+                            {% endif %}
+
+                            <div class="post-actions">
+                                {% if post.likes.contains(app.user) %}
+                                    <a href="{{ path('app_post_unlike', {'id': post.id}) }}" class="action-btn">
+                                        💗 <span class="action-count">{{ post.likes|length }}</span>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ path('app_post_like', {'id': post.id}) }}" class="action-btn">
+                                        🖤 <span class="action-count">{{ post.likes|length }}</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            {% if post.text %}
+                                <div class="post-caption">
+                                    <p class="caption-text">
+                                        <a href='{{path('app_user_show', {'id': post.author.id})}}' class="username">{{ post.author.username }}</a>
+                                        {{ post.text }}
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>Aún no hay publicaciones</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if user.compartidos is defined and user.compartidos is not empty %}
+            <h2 class="section-title">🔄 Compartidos</h2>
+            <div class="posts-grid">
+                    {% for shared in user.compartidos %}
+                        <div class="post-item">
+                            {% if shared.img %}
+                                <img src="{{ asset('img/' ~ shared.img) }}" alt="{{ shared.text }}">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                                    🔄
+                                </div>
+                            {% endif %}
+                            <div class="post-overlay">
+                                <div class="post-stat">
+                                    💗 {{ shared.likes|length }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <h2 class="section-title">Todos los compartidos</h2>
+                <div class="post-list">
+                    {% for shared in user.compartidos %}
+                        <article class="post-card">
+                            <div class="post-header">
+                                <div class="user-info">
+                                    <div class="user-avatar-small">
+                                        {{ shared.author.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <a href='{{path('app_user_show', {'id': shared.author.id})}}' class="username">
+                                            {{ shared.author.username }}
+                                        </a>
+                                        <div class="post-date">
+                                            {{ shared.postdate ? shared.postdate|date('d/m/Y H:i') : '' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if shared.img %}
+                                <img src="{{ asset('img/' ~ shared.img) }}" class="post-image" alt="{{ shared.text }}">
+                            {% endif %}
+
+                            <div class="post-actions">
+                                {% if shared.likes.contains(app.user) %}
+                                    <a href="{{ path('app_post_unlike', {'id': shared.id}) }}" class="action-btn">
+                                        💗 <span class="action-count">{{ shared.likes|length }}</span>
+                                    </a>
+                                {% else %}
+                                    <a href="{{ path('app_post_like', {'id': shared.id}) }}" class="action-btn">
+                                        🖤 <span class="action-count">{{ shared.likes|length }}</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            {% if shared.text %}
+                                <div class="post-caption">
+                                    <p class="caption-text">
+                                        <a href='{{path('app_user_show', {'id': shared.author.id})}}' class="username">{{ shared.author.username }}</a>
+                                        {{ shared.text }}
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <h2 class="section-title">🔄 Compartidos</h2>
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔄</div>
+                    <p>No hay publicaciones compartidas</p>
+                </div>
+            {% endif %}
+    </div>
 {% endblock %}
