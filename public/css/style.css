@@ -1,0 +1,316 @@
+/*
+  style.css – Enhanced premium stylesheet for the Social project
+  ----------------------------------------------------------
+  Added:
+  • Comprehensive typographic scale
+  • Navigation bar styling
+  • Form elements (input, textarea, select, button)
+  • Utility classes (spacing, text alignment, visibility)
+  • Responsive breakpoints for mobile, tablet, desktop
+  • Refined glassmorphism cards with hover details
+  • Dark‑mode tweaks for better contrast
+*/
+
+/* ==== Root variables ==== */
+:root {
+    /* Primary palette – harmonious HSL */
+    --color-primary-h: 220;
+    /* blue‑ish */
+    --color-primary-s: 70%;
+    --color-primary-l: 55%;
+    --color-accent-h: 340;
+    /* pink‑ish */
+    --color-accent-s: 80%;
+    --color-accent-l: 65%;
+
+    /* Backgrounds */
+    --color-bg-light: hsl(0, 0%, 98%);
+    --color-bg-dark: hsl(210, 10%, 12%);
+    --color-surface-light: hsla(0, 0%, 100%, 0.8);
+    --color-surface-dark: hsla(210, 10%, 20%, 0.4);
+
+    /* Text */
+    --color-text-light: hsl(210, 10%, 10%);
+    --color-text-dark: hsl(0, 0%, 90%);
+
+    /* Geometry */
+    --radius: 0.75rem;
+    --shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
+    --transition: 0.2s ease-in-out;
+
+    /* Spacing scale (rem) */
+    --space-0: 0;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+}
+
+/* ==== Dark / Light mode ==== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: var(--color-bg-dark);
+        --color-surface: var(--color-surface-dark);
+        --color-text: var(--color-text-dark);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-bg: var(--color-bg-light);
+        --color-surface: var(--color-surface-light);
+        --color-text: var(--color-text-light);
+    }
+}
+
+/* ==== Global reset & base ==== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ==== Typography ==== */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-4);
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-3);
+}
+
+h3 {
+    font-size: 1.75rem;
+    margin-bottom: var(--space-3);
+}
+
+h4 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-2);
+}
+
+h5 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-2);
+}
+
+h6 {
+    font-size: 1rem;
+    margin-bottom: var(--space-1);
+}
+
+p {
+    margin-bottom: var(--space-3);
+}
+
+/* ==== Links ==== */
+a {
+    color: hsl(var(--color-accent-h), var(--color-accent-s), var(--color-accent-l));
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+a:hover {
+    opacity: .85;
+}
+
+/* ==== Layout container ==== */
+.container {
+    width: min(90%, 1200px);
+    margin: 0 auto;
+    padding: var(--space-4);
+}
+
+/* ==== Navigation bar ==== */
+.navbar {
+    background: var(--color-surface);
+    padding: var(--space-2) var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(8px);
+}
+
+.navbar a {
+    margin: 0 var(--space-2);
+    font-weight: 500;
+}
+
+/* ==== Form elements ==== */
+input,
+textarea,
+select {
+    width: 100%;
+    padding: var(--space-2);
+    border: 1px solid hsl(var(--color-primary-h), 20%, 70%);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: hsl(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l));
+    box-shadow: 0 0 0 3px hsla(var(--color-primary-h), var(--color-primary-s), 40%, 0.2);
+}
+
+button,
+.btn {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius);
+    background: hsl(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l));
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+button:hover,
+.btn:hover {
+    background: hsl(var(--color-primary-h), var(--color-primary-s), calc(var(--color-primary-l) - 5%));
+}
+
+/* ==== Post card – glassmorphism ==== */
+.post-card {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: var(--space-5);
+    margin-bottom: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+}
+
+.post-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    object-fit: cover;
+}
+
+.post-meta {
+    font-size: 0.875rem;
+    color: hsl(var(--color-primary-h), 20%, 50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-actions a {
+    margin-right: var(--space-2);
+    font-size: 1.1rem;
+}
+
+/* ==== Responsive grid for posts ==== */
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-5);
+}
+
+/* ==== Footer ==== */
+footer {
+    background: var(--color-surface);
+    text-align: center;
+    padding: var(--space-5) 0;
+    font-size: 0.875rem;
+    color: hsl(var(--color-primary-h), 20%, 60%);
+    box-shadow: var(--shadow);
+}
+
+/* ==== Utility classes ==== */
+.mt-1 {
+    margin-top: var(--space-1);
+}
+
+.mt-2 {
+    margin-top: var(--space-2);
+}
+
+.mt-3 {
+    margin-top: var(--space-3);
+}
+
+.mb-1 {
+    margin-bottom: var(--space-1);
+}
+
+.mb-2 {
+    margin-bottom: var(--space-2);
+}
+
+.mb-3 {
+    margin-bottom: var(--space-3);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.d-none {
+    display: none;
+}
+
+/* ==== Micro‑animations ==== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.post-card {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* ==== Responsive breakpoints ==== */
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .container {
+        padding: var(--space-3);
+    }
+}
+
+@media (min-width: 901px) {
+    .posts-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+}

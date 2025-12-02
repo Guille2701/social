@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+    <h1>{{ app.user.username }}</h1>
+    <p>Seguidores: {{ app.user.followers|length }}</p>
+    
+
+    <a href="{{ path('app_post_index') }}">Posts</a>
+{% endblock %}

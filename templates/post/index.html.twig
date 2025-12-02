@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Post index{% endblock %}
+
+{% block body %}
+    <h1>Mi red social</h1>
+        {% for post in posts %}
+            <div>
+                <p><a href='{{path('app_user_show', {'id': post.author.id})}}'>{{ post.author.username }}</a> {{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}</p>
+                {% if app.user.id != post.author.id %}
+                    {% if app.user.followers.contains(post.author) %}
+                    <p>{{ post.author.followers|length }}<a href="{{ path('app_post_unfollow', {'id': post.id}) }}">➖</a></p>
+                    {% else %}
+                    <p>{{ post.author.followers|length }}<a href="{{ path('app_post_follow', {'id': post.id}) }}">➕</a></p>
+                    {% endif %}
+                {% endif %}
+                {% if post.img %}
+                    <img src="{{ asset('img/' ~ post.img) }}" width="200" alt="{{ post.text }}">
+                {% endif %}
+                <p>{{ post.text }}</p>
+                {% if post.likes.contains(app.user) %}
+                <p>{{ post.likes|length }}<a href="{{ path('app_post_unlike', {'id': post.id}) }}">💗</a></p>
+                {% else %}
+                <p>{{ post.likes|length }}<a href="{{ path('app_post_like', {'id': post.id}) }}">🖤</a></p>
+                {% endif %}
+                
+                <p>
+                    <a href="{{ path('app_post_show', {'id': post.id}) }}">show</a>
+                    <a href="{{ path('app_post_edit', {'id': post.id}) }}">edit</a>
+                </p>
+            </div>
+            <hr>
+        {% else %}
+            <p>No records found</p>
+        {% endfor %}
+
+    <a href="{{ path('app_post_new') }}">Create new</a>
+{% endblock %}
