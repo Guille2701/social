@@ -4,7 +4,7 @@
 
 {% block body %}
     <h1>{{ app.user.username }}</h1>
-    <a href="{{ path('app_user_follower', {'username': app.user.username}) }}"><p>Seguidores: {{ app.user.followers|length }}</p></a>
+    <p>Seguidores: {{ app.user.followers|length }}</p>
     
 
     <a href="{{ path('app_post_index') }}">Posts</a>

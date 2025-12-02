@@ -6,7 +6,7 @@
     <h1>Mi red social</h1>
         {% for post in posts %}
             <div>
-                <p><a href='{{path('app_user_show', {'username': post.author.username})}}'>{{ post.author.username }}</a> {{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}</p>
+                <p><a href='{{path('app_user_show', {'id': post.author.id})}}'>{{ post.author.username }}</a> {{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}</p>
                 {% if app.user.id != post.author.id %}
                     {% if app.user.followers.contains(post.author) %}
                     <p>{{ post.author.followers|length }}<a href="{{ path('app_post_unfollow', {'id': post.id}) }}">➖</a></p>
