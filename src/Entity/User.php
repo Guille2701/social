@@ -24,41 +24,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $username = null;
 
-    /**
-     * @var list<string> The user roles
-     */
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     private ?string $password = null;
 
-    /**
-     * @var Collection<int, Post>
-     */
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]
     private Collection $posts;
 
-    /**
-     * @var Collection<int, Post>
-     */
     #[ORM\ManyToMany(targetEntity: Post::class, mappedBy: 'likes')]
     private Collection $likes;
 
     /**
+     * Usuarios que siguen a este usuario
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
+    private Collection $followers;
+
+    /**
+     * Usuarios a los que este usuario sigue
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
-    private Collection $followers;
+    #[ORM\JoinTable(name: 'user_follow')]
+    private Collection $following;
+
+    #[ORM\OneToMany(targetEntity: Conversation::class, mappedBy: 'user1')]
+    private Collection $conversations;
+
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'sender')]
+    private Collection $myMessages;
 
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->likes = new ArrayCollection();
         $this->followers = new ArrayCollection();
+        $this->following = new ArrayCollection();
+        $this->conversations = new ArrayCollection();
+        $this->myMessages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -74,45 +80,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -121,30 +109,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
     public function __serialize(): array
     {
         $data = (array) $this;
         $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
-        
         return $data;
     }
 
     #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // @deprecated, to be removed when upgrading to Symfony 8
-    }
+    public function eraseCredentials(): void {}
 
-    /**
-     * @return Collection<int, Post>
-     */
     public function getPosts(): Collection
     {
         return $this->posts;
@@ -156,25 +133,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->posts->add($post);
             $post->setAuthor($this);
         }
-
         return $this;
     }
 
     public function removePost(Post $post): static
     {
         if ($this->posts->removeElement($post)) {
-            // set the owning side to null (unless already changed)
             if ($post->getAuthor() === $this) {
                 $post->setAuthor(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Post>
-     */
     public function getLikes(): Collection
     {
         return $this->likes;
@@ -186,7 +157,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->likes->add($like);
             $like->addLike($this);
         }
-
         return $this;
     }
 
@@ -195,7 +165,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->likes->removeElement($like)) {
             $like->removeLike($this);
         }
-
         return $this;
     }
 
@@ -211,15 +180,89 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->followers->contains($follower)) {
             $this->followers->add($follower);
+            $follower->follow($this);
         }
-
         return $this;
     }
 
     public function removeFollower(self $follower): static
     {
-        $this->followers->removeElement($follower);
+        if ($this->followers->removeElement($follower)) {
+            $follower->unfollow($this);
+        }
+        return $this;
+    }
 
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFollowing(): Collection
+    {
+        return $this->following;
+    }
+
+    public function follow(self $user): static
+    {
+        if (!$this->following->contains($user)) {
+            $this->following->add($user);
+            $user->addFollower($this);
+        }
+        return $this;
+    }
+
+    public function unfollow(self $user): static
+    {
+        if ($this->following->removeElement($user)) {
+            $user->removeFollower($this);
+        }
+        return $this;
+    }
+
+    public function getConversations(): Collection
+    {
+        return $this->conversations;
+    }
+
+    public function addConversation(Conversation $conversation): static
+    {
+        if (!$this->conversations->contains($conversation)) {
+            $this->conversations->add($conversation);
+            $conversation->setUser1($this);
+        }
+        return $this;
+    }
+
+    public function removeConversation(Conversation $conversation): static
+    {
+        if ($this->conversations->removeElement($conversation)) {
+            if ($conversation->getUser1() === $this) {
+                $conversation->setUser1(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getMyMessages(): Collection
+    {
+        return $this->myMessages;
+    }
+
+    public function addMyMessage(Message $myMessage): static
+    {
+        if (!$this->myMessages->contains($myMessage)) {
+            $this->myMessages->add($myMessage);
+            $myMessage->setSender($this);
+        }
+        return $this;
+    }
+
+    public function removeMyMessage(Message $myMessage): static
+    {
+        if ($this->myMessages->removeElement($myMessage)) {
+            if ($myMessage->getSender() === $this) {
+                $myMessage->setSender(null);
+            }
+        }
         return $this;
     }
 }
