@@ -16,7 +16,7 @@ class StoryRepository extends ServiceEntityRepository
         parent::__construct($registry, Story::class);
     }
 
-//    /**
+    //    /**
 //     * @return Story[] Returns an array of Story objects
 //     */
 //    public function findByExampleField($value): array
@@ -31,7 +31,7 @@ class StoryRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Story
+    //    public function findOneBySomeField($value): ?Story
 //    {
 //        return $this->createQueryBuilder('s')
 //            ->andWhere('s.exampleField = :val')
@@ -40,4 +40,15 @@ class StoryRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function findActiveStories(): array
+    {
+        $date = new \DateTime();
+        $date->modify('-24 hours');
+
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.creationDate > :date')
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult();
+    }
 }

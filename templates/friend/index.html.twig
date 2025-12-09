@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mis Amigos{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">Mis Amigos</h1>
+
+    {% if friends is not empty %}
+        <div class="list-group">
+            {% for friend in friends %}
+                <a href="{{ path('profile_view', {username: friend.username}) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    {{ friend.username }}
+                    <span class="badge bg-primary rounded-pill">Amigo</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            Aún no tienes amigos. ¡Empieza a conectar con otros usuarios!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

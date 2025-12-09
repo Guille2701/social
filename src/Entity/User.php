@@ -3,17 +3,49 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[ApiResource(
+    operations: [
+        new Get(
+            normalizationContext: ['groups' => ['user:read']]
+        ),
+        new GetCollection(
+            normalizationContext: ['groups' => ['user:read']]
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/followers',
+            normalizationContext: ['groups' => ['user:followers:read']],
+            name: 'user_get_followers'
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/following',
+            normalizationContext: ['groups' => ['user:following:read']],
+            name: 'user_get_following'
+        ),
+        new Get(
+            uriTemplate: '/users/{id}/stories',
+            normalizationContext: ['groups' => ['user:story:read']],
+            name: 'user_get_stories'
+        ),
+    ]
+)]
+
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -21,7 +53,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+
     #[ORM\Column(length: 180)]
+    #[Groups(['user:read', 'user:write', 'post:read', 'post:write', 'story:read', 'story:write','user:followers:read', 'user:following:read'])]
     private ?string $username = null;
 
     /**
@@ -40,6 +74,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, Post>
      */
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'author')]
+    #[Groups(['user:read'])]
     private Collection $posts;
 
     /**
@@ -53,24 +88,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
     #[ORM\JoinTable(name: 'user_followers')]
+    #[Groups(['user:following:read', 'user:following:write'])]
     private Collection $following;
 
     /**
      * @var Collection<int, self>
      */
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
+    #[Groups(['user:followers:read'])]
     private Collection $followers;
 
     /**
      * @var Collection<int, Story>
      */
     #[ORM\OneToMany(targetEntity: Story::class, mappedBy: 'author')]
+    #[Groups(['user:story:read'])]
     private Collection $stories;
 
     /**
      * @var Collection<int, Story>
      */
     #[ORM\ManyToMany(targetEntity: Story::class, mappedBy: 'likes')]
+    #[Groups(['user:story:read'])]
     private Collection $storiesLikes;
 
     /**

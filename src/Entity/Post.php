@@ -7,27 +7,51 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+
+
+#[ApiResource(
+    operations: [
+        new Get(
+            normalizationContext: ['groups' => ['post:read']]
+        ),
+        new GetCollection(
+            normalizationContext: ['groups' => ['post:read']]
+        )
+    ]
+)]
+
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['post:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['post:read'])]
     private ?string $text = null;
 
     #[ORM\Column]
+    #[Groups(['post:read'])]
     private ?\DateTime $postdate = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['post:read'])]
     private ?string $img = null;
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[Groups(['post:read'])]
     private ?User $author = null;
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'likes')]
+    #[Groups(['post:read'])]
     private Collection $likes;
 
     /**
@@ -35,6 +59,7 @@ class Post
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'compartidos')]
+    #[Groups(['post:read'])]
     private Collection $compartidos;
 
     public function __construct()
@@ -82,6 +107,7 @@ class Post
         return $this;
     }
 
+    
     public function getAuthor(): ?User
     {
         return $this->author;

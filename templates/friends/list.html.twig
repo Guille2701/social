@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Amigos{% endblock %}
+
+{% block body %}
+<h1>Amigos</h1>
+
+<h2>Usuarios disponibles para invitar</h2>
+<ul>
+    {% for user in users %}
+        <li>
+            {{ user.username }}
+            <a href="{{ path('friends_invite', {id: user.id}) }}">Invitar</a>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>Solicitudes pendientes</h2>
+<ul>
+    {# Aquí se pueden listar las solicitudes pendientes si se pasan desde el controlador #}
+</ul>
+
+<h2>Lista de amigos</h2>
+<ul>
+    {# Aquí se pueden listar los amigos aceptados si se pasan desde el controlador #}
+</ul>
+
+{% endblock %}

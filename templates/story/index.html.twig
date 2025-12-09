@@ -8,8 +8,7 @@
     
 {% for story in stories %}
     {% set creationDate = story.getCreationDate() %}
-    {% set creationDatePlus24 = creationDate|date('Y-m-d H:i:s')|date_modify('+24 seconds
-    ') %}
+    {% set creationDatePlus24 = creationDate|date('Y-m-d H:i:s')|date_modify('+24 hours') %}
 
     {% if creationDatePlus24 > "now"|date('Y-m-d H:i:s') %}
         <a href="{{ path('app_story_show', {'id': story.id}) }}">

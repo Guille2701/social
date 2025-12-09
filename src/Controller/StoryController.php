@@ -20,7 +20,7 @@ final class StoryController extends AbstractController
     public function index(StoryRepository $storyRepository): Response
     {
         return $this->render('story/index.html.twig', [
-            'stories' => $storyRepository->findAll(),
+            'stories' => $storyRepository->findActiveStories(),
         ]);
     }
 
@@ -46,7 +46,7 @@ final class StoryController extends AbstractController
                 $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
                 // this is needed to safely include the file name as part of the URL
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imgFile->guessExtension();
 
                 // Move the file to the directory where brochures are stored
                 try {
@@ -103,7 +103,7 @@ final class StoryController extends AbstractController
     #[Route('/{id}', name: 'app_story_delete', methods: ['POST'])]
     public function delete(Request $request, Story $story, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$story->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $story->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($story);
             $entityManager->flush();
         }
@@ -119,7 +119,7 @@ final class StoryController extends AbstractController
         $entityManager->flush();
         return $this->redirectToRoute('app_story_index', [], Response::HTTP_SEE_OTHER);
     }
-    
+
     #[Route('/unlikeS/{id}', name: 'app_story_unlike', methods: ['GET'])]
     public function unlike(Story $story, EntityManagerInterface $entityManager): Response
     {
@@ -129,5 +129,5 @@ final class StoryController extends AbstractController
         return $this->redirectToRoute('app_story_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    
+
 }
