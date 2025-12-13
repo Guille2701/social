@@ -28,6 +28,24 @@
         </div>
     {% endif %}
 
+    {% if followBackList is defined and followBackList is not empty %}
+        <h2 class="mb-3">Seguir También</h2>
+        <div class="list-group mb-5">
+            {% for follower in followBackList %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <a href="{{ path('profile_view', {username: follower.username}) }}">
+                            <strong>{{ follower.username }}</strong>
+                        </a> te sigue.
+                    </span>
+                    <div>
+                        <a href="{{ path('friend_follow_back', {id: follower.id}) }}" class="btn btn-primary btn-sm">Seguir También</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <h2 class="mb-3">Sugerencias de Amigos</h2>
     {% if suggestions is not empty %}
         <div class="list-group">
@@ -36,7 +54,11 @@
                     <a href="{{ path('profile_view', {username: suggestion.username}) }}">
                         {{ suggestion.username }}
                     </a>
-                    <a href="{{ path('friend_send', {id: suggestion.id}) }}" class="btn btn-primary btn-sm">Enviar Invitación</a>
+                    {% if suggestion.id in sentRequests %}
+                        <a href="{{ path('friend_cancel_request', {id: suggestion.id}) }}" class="btn btn-warning btn-sm">Solicitud enviada</a>
+                    {% else %}
+                        <a href="{{ path('friend_send', {id: suggestion.id, source: 'pending'}) }}" class="btn btn-primary btn-sm">Enviar Invitación</a>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>

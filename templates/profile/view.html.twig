@@ -8,15 +8,33 @@
 
         {# Don't show the button if users are viewing their own profile #}
         {% if app.user and app.user.id != user.id %}
-            {#
-                TODO: Add more advanced logic here to handle different states:
-                - Already friends
-                - Invitation pending
-                - Invitation received
-            #}
-            <a href="{{ path('friend_send', {id: user.id}) }}" class="btn btn-primary">
-                Send Friend Invitation
-            </a>
+            {% set amIFollowing = app.user.following.contains(user) %}
+            {% set isHeFollowingMe = user.following.contains(app.user) %}
+
+            <div class="mt-3">
+                {% if amIFollowing and isHeFollowingMe %}
+                    <button class="btn btn-success me-2" disabled>
+                        <i class="bi bi-people-fill"></i> Amigos
+                    </button>
+                    <!-- Optional: Add Unfollow button logic here if needed -->
+                {% elseif amIFollowing %}
+                    <button class="btn btn-secondary me-2" disabled>
+                        <i class="bi bi-check-lg"></i> Siguiendo
+                    </button>
+                {% elseif isInvitationPending %}
+                     <button class="btn btn-warning me-2" disabled>
+                        <i class="bi bi-clock-history"></i> Solicitud Enviada
+                    </button>
+                {% elseif isHeFollowingMe %}
+                     <a href="{{ path('friend_follow_back', {id: user.id}) }}" class="btn btn-primary">
+                        Seguir También
+                    </a>
+                {% else %}
+                    <a href="{{ path('friend_send', {id: user.id}) }}" class="btn btn-primary">
+                        Seguir
+                    </a>
+                {% endif %}
+            </div>
         {% endif %}
 
         {# You can display the user's posts or other information here later #}

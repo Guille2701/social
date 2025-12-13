@@ -42,10 +42,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setParameter('user_id', $user->getId())
             ->getSingleColumnResult();
 
+        // Excluir amigos (accepted) o solicitudes pendientes recibidas (pending AND receiver = user)
+        // PERMITIR (no excluir): solicitudes pendientes enviadas (sender = user AND pending) -> Para mostrar "Solicitud enviada"
         $invitationIds = $em->createQuery("
             SELECT CASE WHEN fi.sender = :user_id THEN IDENTITY(fi.receiver) ELSE IDENTITY(fi.sender) END
             FROM App\Entity\FriendInvitation fi
-            WHERE (fi.sender = :user_id OR fi.receiver = :user_id) AND fi.status != 'rejected'
+            WHERE 
+                (fi.status = 'accepted' AND (fi.sender = :user_id OR fi.receiver = :user_id))
+                OR
+                (fi.status = 'pending' AND fi.receiver = :user_id)
         ")->setParameter('user_id', $user->getId())->getSingleColumnResult();
 
         // Unir todos los IDs a excluir, incluyendo el del propio usuario
